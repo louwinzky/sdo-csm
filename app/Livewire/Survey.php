@@ -7,6 +7,7 @@ use App\Models\Service;
 use App\Models\SurveyResponse;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Rule;
 use Livewire\Component;
 
@@ -234,11 +235,24 @@ class Survey extends Component
 
         $this->saveResponse(isComplete: true);
         $this->submitted = true;
+        $this->dispatch('draft-cleared');
     }
 
-    public function saveLater(): void
+    #[On('restoreDraft')]
+    public function restoreDraft(array $data): void
     {
-        $this->cancelled = true;
+        $fields = [
+            'currentStep', 'officeId', 'serviceId', 'age', 'gender',
+            'customerType', 'cc1', 'cc2', 'cc3',
+            'sqd0', 'sqd1', 'sqd2', 'sqd3', 'sqd4',
+            'sqd5', 'sqd6', 'sqd7', 'sqd8', 'suggestion',
+        ];
+
+        foreach ($fields as $field) {
+            if (array_key_exists($field, $data)) {
+                $this->$field = $data[$field];
+            }
+        }
     }
 
     private function saveResponse(bool $isComplete): void

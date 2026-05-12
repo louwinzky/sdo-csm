@@ -1,4 +1,42 @@
-<div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+<div x-data="{
+        initDraft() {
+            const saved = localStorage.getItem('sdo_csm_survey_draft');
+            if (! saved) return;
+            try {
+                $wire.call('restoreDraft', JSON.parse(saved));
+            } catch (e) {
+                localStorage.removeItem('sdo_csm_survey_draft');
+            }
+        },
+        saveDraft() {
+            localStorage.setItem('sdo_csm_survey_draft', JSON.stringify({
+                currentStep: $wire.currentStep,
+                officeId: $wire.officeId,
+                serviceId: $wire.serviceId,
+                age: $wire.age,
+                gender: $wire.gender,
+                customerType: $wire.customerType,
+                cc1: $wire.cc1,
+                cc2: $wire.cc2,
+                cc3: $wire.cc3,
+                sqd0: $wire.sqd0,
+                sqd1: $wire.sqd1,
+                sqd2: $wire.sqd2,
+                sqd3: $wire.sqd3,
+                sqd4: $wire.sqd4,
+                sqd5: $wire.sqd5,
+                sqd6: $wire.sqd6,
+                sqd7: $wire.sqd7,
+                sqd8: $wire.sqd8,
+                suggestion: $wire.suggestion,
+            }));
+            $wire.cancelled = true;
+            $wire.$commit();
+        },
+        discardDraft() {
+            localStorage.removeItem('sdo_csm_survey_draft');
+        }
+    }" x-init="initDraft()" x-on:draft-cleared.window="discardDraft()" class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
     {{-- CSM Notice Modal --}}
     @if($showNotice)
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-gray-500/75 px-4" role="dialog" aria-modal="true">
@@ -70,15 +108,15 @@
                 </div>
             </div>
         @elseif($cancelled)
-            {{-- Cancellation message --}}
+            {{-- Saved for later --}}
             <div class="bg-white shadow-xl rounded-2xl p-10 text-center border border-gray-100">
-                <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 mb-6 shadow-lg shadow-gray-200">
+                <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 mb-6 shadow-lg shadow-amber-200">
                     <svg class="h-10 w-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-900 mb-2">Feedback Cancelled</h2>
-                <p class="text-gray-500 text-base">Your feedback was not submitted. Thank you for your time.</p>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Progress Saved</h2>
+                <p class="text-gray-500 text-base">Your progress has been saved in this browser. Come back anytime to continue.</p>
             </div>
         @else
             {{-- Progress bar --}}
@@ -436,7 +474,7 @@
 
                     <div class="flex items-center gap-3">
                         @if($currentStep < 4)
-                            <button type="button" wire:click="saveLater" wire:confirm="Are you sure you want to cancel your feedback? Your responses will not be saved."
+                            <button type="button" x-on:click="saveDraft()"
                                     class="inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -451,7 +489,7 @@
                                 </svg>
                             </button>
                         @else
-                            <button type="button" wire:click="saveLater" wire:confirm="Are you sure you want to cancel your feedback? Your responses will not be saved."
+                            <button type="button" x-on:click="saveDraft()"
                                     class="inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>

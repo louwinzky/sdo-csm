@@ -226,22 +226,47 @@ class SurveyTest extends TestCase
         ]);
     }
 
-    public function test_save_later_creates_incomplete_response(): void
+    public function test_restore_draft_populates_properties(): void
+    {
+        $data = [
+            'currentStep' => 3,
+            'officeId' => (string) $this->office->id,
+            'serviceId' => (string) $this->service->id,
+            'age' => 30,
+            'gender' => 'Female',
+            'customerType' => 'Government',
+            'cc1' => 2,
+            'cc2' => 3,
+            'cc3' => null,
+            'suggestion' => 'Restored draft',
+        ];
+
+        Livewire::test(Survey::class)
+            ->call('restoreDraft', $data)
+            ->assertSet('currentStep', 3)
+            ->assertSet('officeId', (string) $this->office->id)
+            ->assertSet('age', 30)
+            ->assertSet('cc1', 2)
+            ->assertSet('suggestion', 'Restored draft');
+    }
+
+    public function test_submit_dispatches_draft_cleared_event(): void
     {
         Livewire::test(Survey::class)
             ->set('officeId', $this->office->id)
             ->set('serviceId', $this->service->id)
             ->set('age', 30)
-            ->set('gender', 'Female')
-            ->set('customerType', 'Government')
-            ->call('saveLater')
-            ->assertSet('submitted', true);
-
-        $this->assertDatabaseHas('survey_responses', [
-            'office_id' => $this->office->id,
-            'service_id' => $this->service->id,
-            'is_complete' => false,
-        ]);
+            ->set('gender', 'Male')
+            ->set('customerType', 'Citizen')
+            ->call('nextStep')
+            ->set('cc1', 4)
+            ->call('nextStep')
+            ->set('sqd0', 5)->set('sqd1', 5)->set('sqd2', 5)
+            ->set('sqd3', 5)->set('sqd4', 5)->set('sqd5', 5)
+            ->set('sqd6', 5)->set('sqd7', 5)->set('sqd8', 5)
+            ->call('nextStep')
+            ->call('submit')
+            ->assertDispatched('draft-cleared');
     }
 
     public function test_cc1_option_4_saves_null_cc2_and_cc3(): void
