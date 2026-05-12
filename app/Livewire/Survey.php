@@ -17,6 +17,15 @@ class Survey extends Component
 
     public bool $submitted = false;
 
+    public bool $cancelled = false;
+
+    public bool $showNotice = true;
+
+    public function closeNotice(): void
+    {
+        $this->showNotice = false;
+    }
+
     // ── Step 1: Client Information ────────────────────────
     #[Rule('required|exists:offices,id')]
     public ?int $officeId = null;
@@ -229,8 +238,7 @@ class Survey extends Component
 
     public function saveLater(): void
     {
-        $this->saveResponse(isComplete: false);
-        $this->submitted = true;
+        $this->cancelled = true;
     }
 
     private function saveResponse(bool $isComplete): void

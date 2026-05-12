@@ -7,10 +7,11 @@ A public-facing survey application for collecting client satisfaction feedback o
 | Layer | Technology |
 |-------|-----------|
 | Framework | Laravel 13 |
-| UI | Livewire 4.2 |
+| Admin Panel | Filament 5.6 |
+| UI / Components | Livewire 4.2 |
 | Styling | Tailwind CSS v4 |
-| Bundler | Vite |
-| Database | SQLite (dev) / MySQL (prod) |
+| Bundler | Vite 8 |
+| Database | MySQL (prod) / SQLite (dev/tests) |
 | PHP | 8.3+ |
 
 ## Features
@@ -22,7 +23,86 @@ A public-facing survey application for collecting client satisfaction feedback o
 - **Responsive design** — Mobile-first layout using Tailwind CSS
 - **Save for later** — Clients can save incomplete responses and return later
 
-## Setup
+## Project Creation Procedure
+
+### 1. Create a new Laravel project
+
+```bash
+composer create-project laravel/laravel sdo-csm "^13.0"
+cd sdo-csm
+```
+
+### 2. Install and set up the database
+
+Update `.env` with your database credentials (MySQL recommended for production):
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=csm-db
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+For sessions and queues, use the database driver:
+
+```env
+SESSION_DRIVER=database
+QUEUE_CONNECTION=database
+CACHE_STORE=database
+```
+
+### 3. Install Filament (admin panel)
+
+```bash
+composer require filament/filament
+```
+
+### 4. Install Filament panels
+
+```bash
+php artisan filament:install --panels
+```
+
+This creates:
+- `config/filament.php`
+- `app/Providers/Filament/AdminPanelProvider.php`
+- `app/Filament/` directory structure
+
+> **Note:** If you get a `rename(): Access is denied (code: 5)` error after installing, run `php artisan view:clear && php artisan optimize:clear` to clear stale compiled views, then restart your dev server.
+
+### 5. Set up the database
+
+```bash
+php artisan migrate
+php artisan db:seed
+```
+
+### 6. Create an admin user
+
+```bash
+php artisan make:filament-user
+```
+
+### 7. Build front-end assets
+
+```bash
+npm install
+npm run build
+```
+
+### 8. Start the dev server
+
+```bash
+php artisan serve
+```
+
+Visit `http://localhost:8000/admin` to access the Filament admin panel.
+
+---
+
+## Setup (existing project)
 
 ```bash
 # Clone and install dependencies
