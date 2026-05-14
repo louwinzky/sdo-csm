@@ -22,6 +22,18 @@ class Survey extends Component
 
     public bool $showNotice = true;
 
+    public bool $officeLocked = false;
+
+    public function mount(): void
+    {
+        $officeId = request()->query('office');
+
+        if ($officeId && $office = Office::query()->where('is_active', true)->find($officeId)) {
+            $this->officeId = $office->id;
+            $this->officeLocked = true;
+        }
+    }
+
     public function closeNotice(): void
     {
         $this->showNotice = false;

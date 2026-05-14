@@ -51,4 +51,9 @@ class Office extends Model
             ? "{$this->code} - {$this->name}"
             : $this->name;
     }
+
+    public function getSurveyUrlAttribute(): string
+    {
+        return url('/survey?office=' . $this->id);
+    }
 }

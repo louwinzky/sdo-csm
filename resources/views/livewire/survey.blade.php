@@ -176,7 +176,8 @@
                             <input type="text" x-model="officeSearch" placeholder="Search office..."
                                    class="w-full rounded-xl border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-4 py-3 mb-2">
                             <select wire:model.live="officeId"
-                                    class="w-full rounded-xl border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-4 py-3">
+                                    class="w-full rounded-xl border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-4 py-3"
+                                    {{ $officeLocked ? 'disabled' : '' }}>
                                 <option value="">Select Office</option>
                                 @foreach($this->offices as $office)
                                     <option value="{{ $office->id }}"

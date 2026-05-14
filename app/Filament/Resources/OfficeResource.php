@@ -83,6 +83,11 @@ class OfficeResource extends Resource
                     ->sortable()
                     ->weight('bold'),
 
+                Tables\Columns\TextColumn::make('survey_url')
+                    ->label('Survey Link')
+                    ->copyable()
+                    ->copyMessage('Link copied!'),
+
                 Tables\Columns\TextColumn::make('code')
                     ->label('Code')
                     ->badge()
@@ -130,6 +135,15 @@ class OfficeResource extends Resource
                     Actions\EditAction::make(),
                     Actions\DeleteAction::make(),
                 ]),
+
+                Actions\Action::make('qrCode')
+                    ->label('QR Code')
+                    ->icon('heroicon-o-qr-code')
+                    ->color('gray')
+                    ->modalHeading(fn (Office $record) => "QR Code - {$record->name}")
+                    ->modalWidth('lg')
+                    ->modalContent(fn (Office $record) => view('components.qr-code-modal', ['office' => $record]))
+                    ->modalSubmitAction(false),
             ])
 
             // ── Bulk Actions ─────────────────────────────
