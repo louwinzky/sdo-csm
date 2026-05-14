@@ -20,22 +20,33 @@ class SqdBreakdownChart extends ChartWidget
     {
         $questions = SurveyResponse::sqdQuestions();
         $keys = SurveyResponse::sqdKeys();
+
+        $selects = collect($keys)
+            ->map(fn ($k) => "AVG(CASE WHEN $k > 0 THEN $k END) as avg_{$k}")
+            ->join(', ');
+
+        $row = SurveyResponse::selectRaw($selects)
+            ->where('is_complete', true)
+            ->first();
+
         $avgs = [];
-
         foreach ($keys as $key) {
-            $avg = SurveyResponse::whereNotNull($key)
-                ->where($key, '>', 0)
-                ->avg($key);
-
-            $avgs[] = $avg ? round((float) $avg, 2) : 0;
+            $val = $row?->{"avg_{$key}"};
+            $avgs[] = $val ? round((float) $val, 2) : 0;
         }
+
+        $barColors = array_map(fn ($v) => match (true) {
+            $v >= 4.0 => '#10b981',
+            $v >= 3.0 => '#f59e0b',
+            default   => '#ef4444',
+        }, $avgs);
 
         return [
             'datasets' => [
                 [
                     'label' => 'Average Score',
                     'data' => $avgs,
-                    'backgroundColor' => '#8b5cf6',
+                    'backgroundColor' => $barColors,
                 ],
             ],
             'labels' => array_values($questions),

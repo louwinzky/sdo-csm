@@ -2,7 +2,11 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Widgets\AgeGroupDistributionChart;
+use App\Filament\Widgets\CcAwarenessWidget;
 use App\Filament\Widgets\CustomerTypeDistribution;
+use App\Filament\Widgets\GenderDistributionChart;
+use App\Filament\Widgets\RecentResponsesTable;
 use App\Filament\Widgets\ResponsesPerOfficeChart;
 use App\Filament\Widgets\SatisfactionTrendChart;
 use App\Filament\Widgets\SqdBreakdownChart;
@@ -34,13 +38,20 @@ class AnalyticsDashboard extends Page
             ResponsesPerOfficeChart::class,
             SatisfactionTrendChart::class,
             CustomerTypeDistribution::class,
+            GenderDistributionChart::class,
+            AgeGroupDistributionChart::class,
             SqdBreakdownChart::class,
+            CcAwarenessWidget::class,
+            RecentResponsesTable::class,
         ];
     }
 
     public function getColumns(): int | array
     {
-        return 6;
+        return [
+            'md' => 6,
+            'sm' => 1,
+        ];
     }
 
     public function content(Schema $schema): Schema

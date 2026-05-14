@@ -24,7 +24,12 @@ class SatisfactionTrendChart extends ChartWidget
             ? "DATE_FORMAT(created_at, '%Y-%m')"
             : "strftime('%Y-%m', created_at)";
 
-        $months = SurveyResponse::selectRaw("{$dateExpr} as month, avg(sqd0) as avg_sqd")
+        $keys = SurveyResponse::sqdKeys();
+        $sumParts = collect($keys)->map(fn ($k) => "COALESCE(NULLIF($k, 0), 0)");
+        $countParts = collect($keys)->map(fn ($k) => "CASE WHEN $k IS NOT NULL AND $k > 0 THEN 1 ELSE 0 END");
+        $compositeExpr = "((" . $sumParts->join(' + ') . ") / NULLIF((" . $countParts->join(' + ') . "), 0))";
+
+        $months = SurveyResponse::selectRaw("{$dateExpr} as month, AVG({$compositeExpr}) as avg_sqd")
             ->whereNotNull('sqd0')
             ->groupBy('month')
             ->orderBy('month')
@@ -33,7 +38,7 @@ class SatisfactionTrendChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Avg SQD',
+                    'label' => 'Avg SQD (all dimensions)',
                     'data' => $months->pluck('avg_sqd')->map(fn ($v) => round((float) $v, 2))->toArray(),
                     'borderColor' => '#14b8a6',
                     'backgroundColor' => 'rgba(20, 184, 166, 0.1)',
