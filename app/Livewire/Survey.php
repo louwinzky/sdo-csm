@@ -233,7 +233,10 @@ class Survey extends Component
     {
         $this->validateStep3();
 
-        $this->saveResponse(isComplete: true);
+        $response = $this->saveResponse(isComplete: true);
+
+        $this->detectDuplicate($response);
+
         $this->submitted = true;
         $this->dispatch('draft-cleared');
     }
@@ -255,12 +258,12 @@ class Survey extends Component
         }
     }
 
-    private function saveResponse(bool $isComplete): void
+    private function saveResponse(bool $isComplete): SurveyResponse
     {
         $cc2 = $this->cc1 === 4 ? null : $this->cc2;
         $cc3 = in_array($this->cc1, [3, 4]) ? null : $this->cc3;
 
-        SurveyResponse::create([
+        return SurveyResponse::create([
             'office_id' => $this->officeId,
             'service_id' => $this->serviceId,
             'age' => $this->age,
@@ -280,7 +283,28 @@ class Survey extends Component
             'sqd8' => $this->sqd8,
             'suggestion' => $this->suggestion,
             'is_complete' => $isComplete,
+            'ip_address' => request()->ip(),
         ]);
+    }
+
+    private function detectDuplicate(SurveyResponse $response): void
+    {
+        if (! $response->ip_address) {
+            return;
+        }
+
+        $window = config('duplicate.window_hours', 24);
+
+        $original = SurveyResponse::possibleDuplicate($response->office_id, $response->ip_address, $window)
+            ->where('id', '!=', $response->id)
+            ->first();
+
+        if ($original) {
+            $response->update([
+                'duplicate_of_id' => $original->id,
+                'is_flagged' => true,
+            ]);
+        }
     }
 
     public function render()

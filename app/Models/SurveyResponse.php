@@ -33,6 +33,10 @@ class SurveyResponse extends Model
         // META
         'return_url',
         'is_complete',
+        // IP & Duplicate Tracking
+        'ip_address',
+        'duplicate_of_id',
+        'is_flagged',
     ];
 
     protected $casts = [
@@ -50,6 +54,9 @@ class SurveyResponse extends Model
         'sqd7' => 'integer',
         'sqd8' => 'integer',
         'is_complete' => 'boolean',
+        'ip_address' => 'string',
+        'duplicate_of_id' => 'integer',
+        'is_flagged' => 'boolean',
     ];
 
     // ── Relationships ──────────────────────────────────────
@@ -62,6 +69,16 @@ class SurveyResponse extends Model
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
+    }
+
+    public function duplicateOf(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'duplicate_of_id');
+    }
+
+    public function duplicates(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(self::class, 'duplicate_of_id');
     }
 
     // ── Helpers ────────────────────────────────────────────
@@ -214,5 +231,19 @@ class SurveyResponse extends Model
     {
         return $query->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year);
+    }
+
+    public function scopeFlagged($query)
+    {
+        return $query->where('is_flagged', true);
+    }
+
+    public function scopePossibleDuplicate($query, int $officeId, string $ip, int $windowHours = 24)
+    {
+        return $query->where('office_id', $officeId)
+            ->where('ip_address', $ip)
+            ->where('created_at', '>=', now()->subHours($windowHours))
+            ->where('is_complete', true)
+            ->orderBy('created_at');
     }
 }

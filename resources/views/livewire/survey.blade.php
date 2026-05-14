@@ -56,6 +56,9 @@
                             <p class="text-xs text-gray-600 mb-2">
                                 Personal information is confidential. You may skip any question.
                             </p>
+                            <p class="text-xs text-gray-500 mt-2">
+                                We collect your IP address for duplicate detection purposes only.
+                            </p>
                             <p class="text-xs font-semibold text-gray-700">
                                 ANTI-RED TAPE AUTHORITY
                             </p>

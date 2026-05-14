@@ -22,7 +22,7 @@ class OfficeSeeder extends Seeder
                 'Signing of Documents',
                 'Approval of Travel Orders',
             ]],
-            ['code' => 'ASDS 2', 'name' => 'Office of the Assistant Schools Division Superintendent, 'services' => [
+            ['code' => 'ASDS 2', 'name' => 'Office of the Assistant Schools Division Superintendent', 'services' => [
                 'Endorsement of Documents',
                 'Signing of Documents',
                 'Approval of Travel Orders',

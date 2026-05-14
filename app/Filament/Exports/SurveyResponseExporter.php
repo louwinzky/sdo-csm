@@ -91,6 +91,10 @@ class SurveyResponseExporter extends Exporter
                 ->label('Completed')
                 ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No'),
 
+            ExportColumn::make('is_flagged')
+                ->label('Duplicate')
+                ->formatStateUsing(fn ($state) => $state ? 'Possible Duplicate' : ''),
+
             ExportColumn::make('created_at')
                 ->label('Submitted At')
                 ->formatStateUsing(fn ($state) => $state?->format('M d, Y g:i A')),

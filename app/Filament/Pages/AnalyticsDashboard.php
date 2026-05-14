@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Filament\Widgets\AgeGroupDistributionChart;
 use App\Filament\Widgets\CcAwarenessWidget;
 use App\Filament\Widgets\CustomerTypeDistribution;
+use App\Filament\Widgets\DuplicateResponsesBadge;
 use App\Filament\Widgets\GenderDistributionChart;
 use App\Filament\Widgets\RecentResponsesTable;
 use App\Filament\Widgets\ResponsesPerOfficeChart;
@@ -42,6 +43,7 @@ class AnalyticsDashboard extends Page
             AgeGroupDistributionChart::class,
             SqdBreakdownChart::class,
             CcAwarenessWidget::class,
+            DuplicateResponsesBadge::class,
             RecentResponsesTable::class,
         ];
     }
