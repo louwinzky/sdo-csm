@@ -1,4 +1,5 @@
 <x-filament-panels::page>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <div class="space-y-6">
 
     {{-- ══════════════════════════════════════════════════
@@ -64,28 +65,32 @@
             ];
         @endphp
 
-        {{-- ── Sheet-like Tab Bar ──────────────────────────── --}}
-        <div class="flex flex-wrap gap-1 mb-5">
-            @foreach($tabs as $key => $tab)
-            @php $isActive = $activeTab === $key; @endphp
-            <button wire:click="setTab('{{ $key }}')"
-                    class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold uppercase tracking-wider
-                           rounded-lg transition-all duration-150 border
-                           {{ $isActive
-                               ? 'bg-teal-600 text-white shadow-md border-teal-600 ring-1 ring-teal-300'
-                               : 'bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-gray-200 dark:border-gray-700 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:text-teal-600 dark:hover:text-teal-400 hover:border-teal-200' }}">
-                <x-filament::icon
-                    :icon="$tab['icon']"
-                    class="w-4 h-4 {{ $isActive ? '' : 'opacity-60' }}" />
-                {{ $tab['label'] }}
-            </button>
-            @endforeach
-        </div>
-
         {{-- ── Preview Table Container ───────────────────── --}}
         <div class="rounded-xl border border-gray-200 dark:border-gray-700
                     overflow-hidden shadow-sm bg-white dark:bg-gray-950
                     min-h-[400px]">
+
+            {{-- ── Excel-like Sheet Tab Bar ─────────────────── --}}
+            <div class="flex border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30">
+                @foreach($tabs as $key => $tab)
+                @php $isActive = $activeTab === $key; @endphp
+                <button wire:click="setTab('{{ $key }}')"
+                        class="flex items-center gap-2 px-5 py-3 text-xs font-semibold uppercase tracking-wider
+                               border-r border-gray-200 dark:border-gray-700
+                               transition-all duration-150 relative
+                               {{ $isActive
+                                   ? 'bg-teal-600 text-white shadow-sm'
+                                   : 'bg-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300' }}">
+                    @if($isActive)
+                    <span class="absolute inset-x-0 bottom-0 h-0.5 bg-white"></span>
+                    @endif
+                    <x-filament::icon
+                        :icon="$tab['icon']"
+                        class="w-4 h-4" />
+                    <span>{{ $tab['label'] }}</span>
+                </button>
+                @endforeach
+            </div>
 
             {{-- Teal header bar --}}
             @php
