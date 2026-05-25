@@ -14,15 +14,16 @@ use App\Filament\Widgets\SqdBreakdownChart;
 use App\Filament\Widgets\StatsOverview;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Schema;
 
 class AnalyticsDashboard extends Page
 {
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-chart-pie';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-chart-pie';
 
     protected static ?string $navigationLabel = 'Analytics';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Survey Results';
+    protected static string|\UnitEnum|null $navigationGroup = 'Survey Results';
 
     protected static ?int $navigationSort = 1;
 
@@ -48,7 +49,7 @@ class AnalyticsDashboard extends Page
         ];
     }
 
-    public function getColumns(): int | array
+    public function getColumns(): int|array
     {
         return [
             'md' => 6,
@@ -58,11 +59,65 @@ class AnalyticsDashboard extends Page
 
     public function content(Schema $schema): Schema
     {
+        $widgets = $this->getWidgets();
+        $components = [];
+        $sqdWidget = null;
+        $rightWidgets = [];
+
+        foreach ($widgets as $widgetIndex => $widget) {
+            $widgetClass = $this->normalizeWidgetClass($widget);
+
+            if (! $widgetClass::canView()) {
+                continue;
+            }
+
+            $make = fn () => Livewire::make(
+                $widgetClass,
+                fn (): array => [
+                    ...$this->getWidgetData(),
+                    ...$widgetClass::getDefaultProperties(),
+                    ...(property_exists($this, 'filters') ? ['pageFilters' => $this->filters] : []),
+                ],
+            )->key("{$widgetClass}-{$widgetIndex}");
+
+            if ($widgetClass === SqdBreakdownChart::class) {
+                $sqdWidget = $make()->columnSpan(4);
+                continue;
+            }
+
+            if (in_array($widgetClass, [CcAwarenessWidget::class, DuplicateResponsesBadge::class], true)) {
+                $rightWidgets[] = $make();
+                continue;
+            }
+
+            $components[] = $make()->liberatedFromContainerGrid();
+        }
+
+        if ($sqdWidget || ! empty($rightWidgets)) {
+            $inner = [];
+
+            if ($sqdWidget) {
+                $inner[] = $sqdWidget;
+            }
+
+            if (! empty($rightWidgets)) {
+                $inner[] = Grid::make()
+                    ->columns(1)
+                    ->columnSpan(2)
+                    ->schema($rightWidgets);
+            }
+
+            $components[] = Grid::make()
+                ->columns(6)
+                ->columnSpan(6)
+                ->schema($inner);
+        }
+
         return $schema
             ->components([
                 Grid::make()
                     ->columns(6)
-                    ->schema($this->getWidgetsSchemaComponents($this->getWidgets())),
+                    ->schema($components),
             ]);
     }
 }
