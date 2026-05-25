@@ -98,11 +98,11 @@ class ConsolidatedReport extends Page implements HasForms
 
     private function getYearOptions(): array
     {
-        $years = [];
-        for ($y = now()->year; $y >= now()->year - 5; $y--) {
-            $years[(string) $y] = 'FY ' . $y;
-        }
-        return $years;
+        $year = now()->year;
+        return [
+            (string) ($year - 1) => 'FY ' . ($year - 1),
+            (string) $year       => 'FY ' . $year,
+        ];
     }
 
     // ══════════════════════════════════════════════════════
@@ -211,8 +211,8 @@ class ConsolidatedReport extends Page implements HasForms
 
         return match ($this->activeTab) {
             'office'    => $this->previewOfficeSheet($filters['year'], $filters['quarter']),
-            'quarterly' => $this->previewQuarterlySheet($filters['year']),
-            'q1'        => $this->previewQuarterSheet($filters['year'], 1),
+            'quarterly' => $this->previewQuarterlySheet($filters['year'], $filters['quarter']),
+            'q1'        => $this->previewQuarterSheet($filters['year'], $filters['quarter'] ?? 1),
             'feedback'  => $this->previewFeedbackSheet($filters['year'], $filters['quarter']),
             default     => [],
         };
@@ -257,27 +257,28 @@ class ConsolidatedReport extends Page implements HasForms
         return ['office' => $office->name, 'headers' => $headers, 'rows' => $rows, 'services' => $services];
     }
 
-    private function previewQuarterlySheet(int $year): array
+    private function previewQuarterlySheet(int $year, ?int $quarter): array
     {
         $offices = Office::active()->with('services')->orderBy('name')->get();
         $rows    = [];
+        $quarters = $quarter ? [$quarter] : [1, 2, 3, 4];
 
         foreach ($offices as $office) {
-            $qData = [];
             $total = 0;
+            $qData = [];
 
-            for ($q = 1; $q <= 4; $q++) {
-                $count   = RS::query($year, $q, $office->id)->count();
-                $qData[] = $count;
-                $total  += $count;
+            foreach ($quarters as $q) {
+                $count    = RS::query($year, $q, $office->id)->count();
+                $qData[$q] = $count;
+                $total   += $count;
             }
 
             $rows[] = [
                 'office' => $office->name,
-                'q1'     => $qData[0],
-                'q2'     => $qData[1],
-                'q3'     => $qData[2],
-                'q4'     => $qData[3],
+                'q1'     => $qData[1] ?? 0,
+                'q2'     => $qData[2] ?? 0,
+                'q3'     => $qData[3] ?? 0,
+                'q4'     => $qData[4] ?? 0,
                 'total'  => $total,
             ];
         }

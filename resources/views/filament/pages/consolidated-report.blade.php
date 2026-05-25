@@ -94,10 +94,18 @@
 
             {{-- Teal header bar --}}
             @php
+                $q = $this->quarter;
+                $quarterLabel = match ($q) {
+                    '1' => 'Q1 — January to March',
+                    '2' => 'Q2 — April to June',
+                    '3' => 'Q3 — July to September',
+                    '4' => 'Q4 — October to December',
+                    default => '',
+                };
                 $sheetTitles = [
                     'office'    => 'Office Sheet — ' . ($preview['office'] ?? 'Office') . ' · FY ' . ($this->form->getState()['year'] ?? now()->year),
-                    'quarterly' => 'Quarterly Report — FY ' . ($this->form->getState()['year'] ?? now()->year),
-                    'q1'        => 'Q1 Detail — January to March · FY ' . ($this->form->getState()['year'] ?? now()->year),
+                    'quarterly' => ($quarterLabel ? $quarterLabel . ' · ' : '') . 'Quarterly Report — FY ' . ($this->form->getState()['year'] ?? now()->year),
+                    'q1'        => ($quarterLabel ?: 'Q1 — January to March') . ' Detail · FY ' . ($this->form->getState()['year'] ?? now()->year),
                     'feedback'  => 'Client Feedback — FY ' . ($this->form->getState()['year'] ?? now()->year),
                 ];
             @endphp
