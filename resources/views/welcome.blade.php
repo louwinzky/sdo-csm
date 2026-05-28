@@ -68,6 +68,117 @@
             </div>
         </section>
 
+        {{-- Units and Sections Section --}}
+        <section id="units-sections" class="py-20 sm:py-28 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 text-center">Units and Sections</h2>
+                <div class="w-16 h-1 bg-teal-500 mx-auto mb-4 rounded-full"></div>
+                <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+                    Our division is composed of dedicated units and sections working together to serve the
+                    Schools Division Office of Legazpi City and its stakeholders.
+                </p>
+
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach($offices as $office)
+                        <div onclick="openOfficeModal({{ $office->id }})"
+                             class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="inline-block bg-teal-100 text-teal-800 text-xs font-semibold px-3 py-1 rounded-full">
+                                    {{ $office->code ?? '—' }}
+                                </span>
+                                <span class="text-xs text-gray-400">{{ $office->services_count }} {{ Str::plural('service', $office->services_count) }}</span>
+                            </div>
+                            <h3 class="text-base font-semibold text-gray-900">{{ $office->name }}</h3>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+
+        {{-- Office Modal --}}
+        <div id="office-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4" role="dialog">
+            <div id="modal-backdrop" class="fixed inset-0 bg-black/50 backdrop-blur-sm"></div>
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-8">
+                <button id="modal-close" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+
+                <div id="modal-body">
+                    <div class="flex items-center justify-between mb-6">
+                        <span id="modal-code" class="inline-block bg-teal-100 text-teal-800 text-sm font-semibold px-3 py-1 rounded-full"></span>
+                        <span id="modal-services-count" class="text-sm text-gray-400"></span>
+                    </div>
+
+                    <h3 id="modal-name" class="text-xl font-bold text-gray-900 mb-6"></h3>
+
+                    <div class="mb-6">
+                        <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Feedback Summary</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-teal-50 rounded-xl p-4 text-center">
+                                <p id="modal-satisfaction" class="text-2xl font-bold text-teal-700"></p>
+                                <p class="text-xs text-teal-600 mt-1">Avg Satisfaction</p>
+                                <p class="text-xs text-teal-500">out of 5</p>
+                            </div>
+                            <div class="bg-blue-50 rounded-xl p-4 text-center">
+                                <p id="modal-responses" class="text-2xl font-bold text-blue-700"></p>
+                                <p class="text-xs text-blue-600 mt-1">Total Responses</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Services Offered</h4>
+                        <div id="modal-services" class="flex flex-wrap gap-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const offices = @json($officesJson);
+
+            function openOfficeModal(id) {
+                const office = offices.find(o => o.id === id);
+                if (!office) return;
+
+                document.getElementById('modal-code').textContent = office.code;
+                document.getElementById('modal-name').textContent = office.name;
+                document.getElementById('modal-satisfaction').textContent = office.avg_satisfaction;
+                document.getElementById('modal-responses').textContent = office.responses_count;
+                document.getElementById('modal-services-count').textContent =
+                    office.services.length + ' service' + (office.services.length !== 1 ? 's' : '');
+
+                const container = document.getElementById('modal-services');
+                container.innerHTML = '';
+                if (office.services.length === 0) {
+                    container.innerHTML = '<span class="text-sm text-gray-400">No services listed.</span>';
+                } else {
+                    office.services.forEach(s => {
+                        const span = document.createElement('span');
+                        span.className = 'inline-block bg-gray-100 text-gray-700 text-sm px-3 py-1.5 rounded-lg';
+                        span.textContent = s;
+                        container.appendChild(span);
+                    });
+                }
+
+                document.getElementById('office-modal').classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeOfficeModal() {
+                document.getElementById('office-modal').classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+
+            document.getElementById('modal-close').addEventListener('click', closeOfficeModal);
+            document.getElementById('modal-backdrop').addEventListener('click', closeOfficeModal);
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeOfficeModal();
+            });
+        </script>
+
         {{-- Contact Section --}}
         <section id="contact" class="py-20 sm:py-28 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

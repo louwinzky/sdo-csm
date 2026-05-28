@@ -9,8 +9,8 @@ A public-facing survey application for collecting client satisfaction feedback o
 | Framework | Laravel 13 |
 | Admin Panel | Filament 5.6 |
 | UI / Components | Livewire 4.2 |
-| Styling | Tailwind CSS v4 |
-| Bundler | Vite 8 |
+| Interactivity | Alpine.js |
+| Styling | Tailwind CSS v4 (CDN) |
 | Database | MySQL (prod) / SQLite (dev/tests) |
 | PHP | 8.3+ |
 
@@ -21,113 +21,38 @@ A public-facing survey application for collecting client satisfaction feedback o
 - **Server-side validation** — Each step validates before proceeding
 - **Emoji-based ratings** — SQD questions use a 6-point Likert scale with emoji indicators
 - **Responsive design** — Mobile-first layout using Tailwind CSS
-- **Save for later** — Clients can save incomplete responses and return later
+- **Draft saving** — Incomplete responses saved to localStorage via Alpine.js
+- **Duplicate detection** — Flags potential duplicate submissions by IP address
+- **Office-specific survey links** — Pre-selects office via `?office=` query parameter
+- **Branded homepage** — Hero, About Us, Units & Sections (with satisfaction stats), and Contact sections
+- **Contact form** — Name/email/message submissions stored in database
+- **Admin dashboard** — Filament-powered analytics with charts, CSV/Excel export, and duplicate management
 
-## Project Creation Procedure
-
-### 1. Create a new Laravel project
-
-```bash
-composer create-project laravel/laravel sdo-csm "^13.0"
-cd sdo-csm
-```
-
-### 2. Install and set up the database
-
-Update `.env` with your database credentials (MySQL recommended for production):
-
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=csm-db
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-For sessions and queues, use the database driver:
-
-```env
-SESSION_DRIVER=database
-QUEUE_CONNECTION=database
-CACHE_STORE=database
-```
-
-### 3. Install Filament (admin panel)
+## Setup
 
 ```bash
-composer require filament/filament
-```
-
-### 4. Install Filament panels
-
-```bash
-php artisan filament:install --panels
-```
-
-This creates:
-- `config/filament.php`
-- `app/Providers/Filament/AdminPanelProvider.php`
-- `app/Filament/` directory structure
-
-> **Note:** If you get a `rename(): Access is denied (code: 5)` error after installing, run `php artisan view:clear && php artisan optimize:clear` to clear stale compiled views, then restart your dev server.
-
-### 5. Set up the database
-
-```bash
-php artisan migrate
-php artisan db:seed
-```
-
-### 6. Create an admin user
-
-```bash
-php artisan make:filament-user
-```
-
-### 7. Build front-end assets
-
-```bash
-npm install
-npm run build
-```
-
-### 8. Start the dev server
-
-```bash
-php artisan serve
-```
-
-Visit `http://localhost:8000/admin` to access the Filament admin panel.
-
----
-
-## Setup (existing project)
-
-```bash
-# Clone and install dependencies
 composer install
-npm install
 
-# Environment setup
 cp .env.example .env
 php artisan key:generate
 
-# Database
 php artisan migrate
 php artisan db:seed
 
-# Build assets (required — without this you get ViteManifestNotFoundException)
-npm run build
-
-# Or run dev server for live reloading
-npm run dev
+php artisan serve
 ```
 
 ## Usage
 
 - **Survey form:** `http://sdo-csm.test/survey`
-- **Dev mode:** Run `npm run dev` in a separate terminal for hot reload
+- **Homepage:** `http://sdo-csm.test/`
+- **Admin panel:** `http://sdo-csm.test/admin`
+
+Create an admin user:
+
+```bash
+php artisan make:filament-user
+```
 
 ## Project Structure
 
@@ -139,17 +64,25 @@ app/
     Office.php              # Government offices
     Service.php             # Services per office
     SurveyResponse.php      # Survey submissions
+    ContactInquiry.php      # Contact form submissions
+  Http/Controllers/
+    ContactController.php   # Contact form handler
+  Filament/
+    Resources/              # Admin CRUD resources
+    Pages/                  # Admin custom pages
+    Widgets/                # Admin dashboard widgets
 database/
   seeders/
-    OfficeSeeder.php        # 23 offices + 91 services
+    OfficeSeeder.php        # 18 offices + services
 resources/
   views/
+    layouts/
+      app.blade.php         # Main layout with navigation
     livewire/
       survey.blade.php      # Survey form UI
-    layouts/
-      app.blade.php         # Main layout
+    welcome.blade.php       # Homepage
 routes/
-  web.php                   # Routes (/ and /survey)
+  web.php                   # Routes
 ```
 
 ## Artisan Commands
